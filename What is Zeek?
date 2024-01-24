@@ -1,0 +1,237 @@
+
+# Zeek, what is it?
+Zeek is an open source network security monitoring (NSM) tool.  It is heavily focused on network analysis. It detects events and triggers alerts.  
+Zeek is primarily a platform for collecting and analyzing network data.
+
+Zeek can detect over 50 apps
+ * HTTP, MYSQL, RDP, NTLM, etc.  (DNS, SIP, and DHCP in paid version)
+ * Can detect Malware, can act as an IDS, can detect data exfiltration attempts, network scanning, phishing attempts, SSL/TLS inspection.
+ * Can add specialized apps like HL7 for healthcare.
+ * Checks and analyzes for each port
+ 
+There are 2 operations options for Zeek. First is running it as a service and second is running it against a PCAP. 
+
+Pros
+* It provides in-depth traffic visibility
+* Useful for threat hunting
+* It has scripting language and supports event correlation
+* May be easier to deploy
+* Mature OSS and free options
+* Near real-time analysis 
+ * More storage friendly than pcaps
+Cons
+* Can be difficult to use
+* Little visibility for encrypted traffic
+* Hardware and storage costs
+* Limited support for cloud implementations
+
+# Zeek & Microsoft Defender for Endpoint
+Zeek is now integrated as a component within Microsfot Defender for Endpoint (MDE) providing new levels of network analysis. 
+
+Defender for Endpoint can now monitor inbound and outbound traffic with a novel engine that is capable of:
+
+**Session Awareness** - Being able to aggregate network protocol data across an entire TCP/UDP session, such as NTLM and Kerberos authentications, SSH sessions, FTP connections, and RPC. These aggregated protocol insights provide much richer metadata and extracted payloads that can be used to enhance the detection capabilities of network-based attacks, as well as the passive classification of discovered devices.
+
+**Dynamic Protocol Detection** - Being able to detect attacks even on non-default ports, a common pattern attackers use to hide their network traffic.
+
+**Dynamic Scripting Content** - Being able to add new detections on the fly using Zeek scripts, backed by a wide community of security advocates. This unlocks the ability to react to emerging network-based threats such as Log4Shell and PrintNightmare at unprecedented speed. In a reality where new vulnerabilities are discovered on a weekly basis, this is a true game changer.
+
+To add Zeek to Microsfot Defender for Endpoint (MDE) you will need to :
+
+1. Install and configure Zeek on your network: You will need to install Zeek on a machine on your network that has access to network traffic data that you want to analyze. Once installed you need to configure Zeek to capture and analyze the appropriate data. 
+
+2. Connect Zeek to MDE by configuring the MDE connector on the machine where you have Zeek installed. The connector will forward the data collected by Zeek to MDE.
+
+3. Create custom detection rules to analyze the data collected and then correlate it with other data sources in MDE.
+
+4. Create alerts and response playbooks in MDE.
+
+# Corelight for generating network evidence.
+
+Corelight for Microsoft Sentinel is a free add-on for Microsoft Sentinel users that leverage 
+
+The data connector enables ingestion of events from Zeek and Suricata via Corelight Sensors into Microsoft Sentinel. Corelight for Microsoft Sentinel also includes workbooks and dashboards, hunting queries, and analytic rules to help organizations drive efficient investigations and incident response with the combination of Corelight and Microsoft Sentinel.
+
+To add Zeek to Sentinel you will need to :
+
+1.  Insatall and configure Zeek on your network: You will need to install Zeek on a machine on your network that has access to network traffic data that you want to analyze. Once installed you need to configure Zeek to capture and analyze the appropriate data. 
+2.   Need to connect Zeek to Sentinel by configuring the Azure log analytics agent on the machine where you have installed Zeek. The log analytics agent witll forward the data collected by zeek to Sentinel.
+3. Configure Data Connectors to read data from the log analytics workspace to which Zeek data is being sent.
+4. create custom logs for the Zeek data in Sentinel. Tis will allow you to define the schema for the data and specify how it should be displayed in Sentinel workspace.
+5. Create queries and dahsboards in sentinel to analyze data collected by Zeek nd correlate it with oter data in Sentinel
+
+When working with multiple tennants, you need to install and configure a separate instance of Zeek for each tenant and connect each instance to a different log analytics workspace within sentinel. This will alow you to collect and analyze the network traffic data for each tenant separately.
+
+You'll also need to create a custom log, data connectors and queries for each tenant in order to have a clear separation of data between tenants.
+
+Also improtant to note that when working with multi tenants you should ensure that the Zeek instances are properly isolated and that the data collected by each instance is kept separate to maintain tenent privacy and security.
+
+Overall its a complex process it may be beneficial to have a specilized team to set up and mange it. 
+
+
+
+## More information about Zeek
+-   Understand which versions of the Microsoft Defender for Endpoint agent support the new integration here:
+    -   [What's new in Microsoft Defender for Endpoint | Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/whats-new-in-microsoft-defender-endpoint?view=o365-worldwide#november-2022)
+-   Find out more details about the integration in our ZeekWeek 2022 presentations:
+    -   [ZeekWeek 2022 - Zeek for Windows: The Journey to Run on All Endpoints - Elad Solomon](https://www.youtube.com/watch?v=EFBcnk25XeA)
+    -   [ZeekWeek 2022 - Zeek for Endpoint: Detection and Device Discovery - Boaz Wasserman](https://www.youtube.com/watch?v=TqMHU_9IzXs)
+-   View the open-source contribution in Zeek’s GitHub repository:
+    -   [Microsoft's Port of Zeek for Windows - zeek/zeek (github.com)](https://github.com/zeek/zeek/pull/2518)
+-   Previous announcements:
+    -   Corelight: [Zeek is Now a Component of Microsoft Windows (corelight.com)](https://corelight.com/company/zeek-now-component-of-microsoft-windows?hsLang=en)
+    -   Zeek Project: [A few questions and answers on Zeek and Windows](https://community.zeek.org/t/a-few-questions-and-answers-on-zeek-and-windows/)
+* Azure Network Watcher
+ <https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#network-watcher-limits> 
+* For more information about Zeek logging, refer to the [Zeek Documentation](https://docs.zeek.org/en/master/)
+
+# Other info
+	https://www.zeek.org/
+
+sudo apt- y install zeek
+
+Check the version of the Zeek instance with the following command:
+	zeek  -v
+
+To run Zeek use the "ZeekControl" module
+	$ zeekctl
+
+Zeek Signatures are composed of three logical paths
+
+1. Signature id
+	* The signature breakdown is shown as
+	* Signature id  | Unique signature name 
+2. Conditions
+	* Header - Filtering the packet headers for specific source and destinatin addresses, protocol and port numbers
+	* Content - Filtering the packet payload for specific value/pattern
+3. Actions
+	* Default action - create the "signatures" log file  in case of signature match
+	* Additional action -  Trigger a Zeek script
+	
+Digging a bit deeper into Zeek signatures. The below provides the most common conditions and filters for the Zeek signatures
+
+Condition Field Available Filters
+Header
+src-ip: Source IP
+dst-ip: Destination IP
+src-port: Source Port
+dst-port: Destination Port
+ip-proto: Target protocol. Supported protocols; TCP, UDP, ICMP, IP, IP6
+Content payload: Packet payload
+http-request: Decoded HTTP requests
+http-request-header: Client-side HTTP headers
+http-request-body: Client-side HTTP body
+http-request-header: Server-side HTTP headers
+http-request-body: Server-side HTTP body
+ftp: Command line input of FTP sessions
+Context same-ip: Filtering the source and destination addresses for duplication
+Action event: Signature match message
+Comparison
+Operators:   ==, !=, <, <=, >, >= 
+
+Zeek signatures use the ".sig" extension
+
+Zeek has its own event-driven scripting language, which is powerful as high-level languages and allows us to investigate and correlate the detected events.
+
+Deploy Zeek on an Azure VM to monitor network traffic.
+Configure Zeek to collect and process network data from various sources (e.g. virtual network interfaces, virtual switches, azure log analytics)
+Integrate Zeek logs and alerts with Azure Security Center for centralized mgt and threat detection.
+Use Zeek's analysis capabilitlites  to detect security incidents, including nework intrusions, data exfiltration attempts, and malware.
+Automate the response to securtity incidents by triggereing Axureautomation runbooks or sending alerts to the SOC team for manual investigation.
+Continously monitor rhe performance and effectiveness of Zeek, and adjust its configuation and analysis as needed.
+
+
+# Zeek for Endpoint Advantages
+Network tap visiblity gaps
+	Only see certain network links
+	Intra-subnet traffic
+Better correlation of source/destination device
+Load distribution of traffic dissection
+
+# Device Discovery and Classification
+Why do we need to discover and classify devices?
+Zeeks capabilities are very suitable for the task
+Many out-of-the-box supported protocols can be used to classify devices in the network
+	* NTLM (Windows New Technology LAN Manager) is a suite of security protocols offered by MS to authenticate useres' identity and protect the integrity and confidentiality of their activity
+	* SSH
+	* FTP
+Malicious Activity Detection
+	* Zeek's strongest suit
+		Tons of community content
+		Many opprotunities for custom content
+	* Detection approaches
+		On-device Zeek script logic
+			Heavy lifting done by endpoint
+			Off device telemetry correlation
+			Correlation with non-Zeek telemetries
+			Correlation across several endpoint sensors
+
+   Conclusion
+   Zeek is a very powerful platform for both device discovery and network-based detections
+   Zeek for Endpoint provides unique value
+	   Intra-subnet visibility
+	   Strong endpoint device correlation
+	   Load distribution of traffic dissection
+	Zeek detections can be enhanced by combing other n0n-network telemetry
+
+# Zeek for Windows
+Problems
+Why Zeek
+The journey to Windows
+Conclusion
+
+# What is MDE?
+Part of Microsoft 365 Defender suite
+Post-breach state of mind
+Client & cloud
+Running on all managed endpoints
+
+Network Capabilities of MDE
+Passive collection of network traffic
+Single packet dissection
+Device discovery based on mostly broadcast protocols (ARP, DHCP, MDNS, etc)
+Malicious activity detection based on signature matching, heuristics abd machine learning
+
+# Problem State
+Developed as C++ exe. binary
+The agent is part of Windows OS
+Udpadtes are distributed by Windows Update
+	Features updates every 6 months
+	Critical updates every 1 month
+Deveolping and deploying takes a long time (~6 months)	
+
+Goal Evolve the MDE agent into an extensible platform
+Detect new exploint attempts in a shorter period of time
+Enable researcher independency and flexibly
+Reduce dependency on Windows updates
+
+# Why choose Zeek
+Open-source with wide community
+Well maintained
+Supports many protocols
+Session awareness
+Dynamic Protocol Detection
+Extensible via Zeek scripts
+
+# Composition with Zeek
+Zeek has modular architecture
+	PktMon Listener
+		* raw packet
+	Packet parder
+		* extracted info from packet
+	Event sender		
+
+
+for Linux
+get from Zeek packages on their webpage
+Zeek 4.4.1
+select OS
+add repository and install manually
+copy  and [paste commands into CL
+make sure curl and tcpdump are already installed
+
+
+			
+	
+	
+
